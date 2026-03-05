@@ -54,7 +54,7 @@ void CWin11TaskbarDlg::AdjustTaskbarWndPos(bool force_adjust)
     m_rect.right = m_rect.left + m_window_width;
     m_rect.bottom = m_rect.top + m_window_height;
 
-    // 插入模式：缩小任务列表占位，使本窗口占据任务栏实际区域，不遮挡应用按钮
+    // 插入模式：缩小任务列表占位，使本窗口占据任务栏实际区域；位置用任务栏客户区坐标，避免 Win11 ReBar 仅覆盖任务列表带导致错位
     if (m_hBar != nullptr && m_hMin != nullptr && ::IsWindow(m_hBar) && ::IsWindow(m_hMin))
     {
         ::GetWindowRect(m_hMin, m_rcMin);
@@ -64,17 +64,23 @@ void CWin11TaskbarDlg::AdjustTaskbarWndPos(bool force_adjust)
             m_rcMinOri = m_rcMin;
             m_left_space = m_rcMin.left - m_rcBar.left;
             m_last_width = m_rcMin.Width() - m_rect.Width();
+            int new_task_list_width = m_rcMin.Width() - m_rect.Width();
+            if (new_task_list_width < 0)
+                new_task_list_width = 0;
             if (!theApp.m_taskbar_data.tbar_wnd_on_left || !CWindowsSettingHelper::IsTaskbarCenterAlign())
             {
-                ::MoveWindow(m_hMin, m_left_space, 0, m_rcMin.Width() - m_rect.Width(), m_rcMin.Height(), TRUE);
-                m_rect.MoveToX(m_left_space + m_rcMin.Width() - m_rect.Width() + 2);
+                ::MoveWindow(m_hMin, m_left_space, 0, new_task_list_width, m_rcMin.Height(), TRUE);
+                // 空出区域在任务列表右侧，用任务栏客户区坐标（父窗口为 m_hTaskbar）
+                int x_taskbar_client = (m_rcMin.left + new_task_list_width - m_rcTaskbar.left) + 2;
+                m_rect.MoveToX(x_taskbar_client);
             }
             else
             {
-                ::MoveWindow(m_hMin, m_left_space + m_rect.Width(), 0, m_rcMin.Width() - m_rect.Width(), m_rcMin.Height(), TRUE);
-                m_rect.MoveToX(m_left_space);
+                ::MoveWindow(m_hMin, m_left_space + m_rect.Width(), 0, new_task_list_width, m_rcMin.Height(), TRUE);
+                int x_taskbar_client = m_rcMin.left - m_rcTaskbar.left + 2;
+                m_rect.MoveToX(x_taskbar_client);
             }
-            m_rect.MoveToY((m_rcBar.Height() - m_rect.Height()) / 2 + DPI(theApp.m_taskbar_data.window_offset_top));
+            m_rect.MoveToY((m_rcTaskbar.Height() - m_rect.Height()) / 2 + DPI(theApp.m_taskbar_data.window_offset_top));
             m_rect.MoveToX(m_rect.left + DPI(theApp.m_taskbar_data.window_offset_left));
             MoveWindow(m_rect);
         }
@@ -136,8 +142,7 @@ void CWin11TaskbarDlg::ResetTaskbarPos()
 
 HWND CWin11TaskbarDlg::GetParentHwnd()
 {
-    if (m_hBar != nullptr && ::IsWindow(m_hBar))
-        return m_hBar;
+    // Win11 下始终以任务栏为父窗口，插入模式时用任务栏客户区坐标定位，避免 ReBar 仅覆盖任务列表带导致显示错位
     return m_hTaskbar;
 }
 
