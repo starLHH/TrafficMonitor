@@ -101,8 +101,8 @@ void CWin11TaskbarDlg::AdjustTaskbarWndPos(bool force_adjust)
                 notify_x_client = m_rcTaskbar.Width() - DPI(theApp.m_taskbar_data.taskbar_right_space_win11);
         }
         // 贴通知区左侧；减少左侧空白，窗口向右移 30 像素（左留白减少 30）
-        const int win11_right_gap = DPI(0);
-        const int win11_reduce_left_gap = DPI(30);
+        const int win11_right_gap = DPI(8);
+        const int win11_reduce_left_gap = DPI(10);
         if (theApp.m_taskbar_data.avoid_overlap_with_widgets && CWindowsSettingHelper::IsTaskbarWidgetsBtnShown() && !CWindowsSettingHelper::IsTaskbarCenterAlign())
             m_rect.MoveToX(notify_x_client - m_rect.Width() - win11_right_gap - DPI(theApp.m_taskbar_data.taskbar_left_space_win11) + win11_reduce_left_gap);
         else
