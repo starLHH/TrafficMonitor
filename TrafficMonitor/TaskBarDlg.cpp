@@ -539,7 +539,7 @@ bool CTaskBarDlg::AdjustWindowPos(bool force_adjust)
     CheckTaskbarOnTopOrBottom();
     if (force_adjust || m_taskbar_on_top_or_bottom != last_taskbar_on_top_or_bottom)
     {
-        CalculateWindowSize();
+        ();
         last_taskbar_on_top_or_bottom = m_taskbar_on_top_or_bottom;
         force_adjust = true;
     }
@@ -806,15 +806,13 @@ void CTaskBarDlg::SetTextFont()
 void CTaskBarDlg::ApplySettings()
 {
     SetTextFont();
-    CalculateWindowSize();
+    ();
 }
 
 void CTaskBarDlg::CalculateWindowSize()
 {
     bool horizontal_arrange = theApp.m_taskbar_data.horizontal_arrange && m_taskbar_on_top_or_bottom;
-    if (theApp.m_taskbar_data.display_item.IsEmpty() && theApp.m_taskbar_data.plugin_display_item.data().empty())
-        theApp.m_taskbar_data.display_item.Add(TDI_UP);        //至少显示一项
-
+  
     m_item_widths.clear();
     //显示项目的宽度
     std::map<CommonDisplayItem, ItemWidth> item_widths;
