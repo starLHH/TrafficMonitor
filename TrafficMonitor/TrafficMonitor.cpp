@@ -1,4 +1,4 @@
-﻿
+
 // TrafficMonitor.cpp : 定义应用程序的类行为。
 //
 
@@ -1112,8 +1112,8 @@ BOOL CTrafficMonitorApp::InitInstance()
     }
     else if (nResponse == -1)
     {
-        TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
-        TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
+        TRACE(traceAppMsg, 0, "Warning: Dialog creation failed, app will terminate unexpectedly.\n");
+        TRACE(traceAppMsg, 0, "Warning: If you use MFC controls on the dialog, you cannot #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS.\n");
     }
 
     // 删除上面创建的 shell 管理器。
@@ -1402,8 +1402,8 @@ double CTrafficMonitorApp::GetMonitorValue(MonitorItem item)
 {
     switch (item)
     {
-    case MI_UP: return m_out_speed;
-    case MI_DOWN: return m_in_speed;
+    case MI_UP: return static_cast<double>(m_out_speed);
+    case MI_DOWN: return static_cast<double>(m_in_speed);
     case MI_CPU: return m_cpu_usage;
     case MI_MEMORY: return m_memory_usage;
     case MI_GPU_USAGE: return m_gpu_usage;
@@ -1413,8 +1413,8 @@ double CTrafficMonitorApp::GetMonitorValue(MonitorItem item)
     case MI_MAIN_BOARD_TEMP: return m_main_board_temperature;
     case MI_HDD_USAGE: return m_hdd_usage;
     case MI_CPU_FREQ: return m_cpu_freq;
-    case MI_TODAY_UP_TRAFFIC: return m_today_up_traffic;
-    case MI_TODAY_DOWN_TRAFFIC: return m_today_down_traffic;
+    case MI_TODAY_UP_TRAFFIC: return static_cast<double>(m_today_up_traffic);
+    case MI_TODAY_DOWN_TRAFFIC: return static_cast<double>(m_today_down_traffic);
     }
     return 0.0;
 }

@@ -1,4 +1,4 @@
-﻿// TaskBarDlg.cpp : 实现文件
+// TaskBarDlg.cpp : 实现文件
 //
 
 #include "stdafx.h"
@@ -539,7 +539,6 @@ bool CTaskBarDlg::AdjustWindowPos(bool force_adjust)
     CheckTaskbarOnTopOrBottom();
     if (force_adjust || m_taskbar_on_top_or_bottom != last_taskbar_on_top_or_bottom)
     {
-        ();
         last_taskbar_on_top_or_bottom = m_taskbar_on_top_or_bottom;
         force_adjust = true;
     }
@@ -806,7 +805,6 @@ void CTaskBarDlg::SetTextFont()
 void CTaskBarDlg::ApplySettings()
 {
     SetTextFont();
-    ();
 }
 
 void CTaskBarDlg::CalculateWindowSize()
