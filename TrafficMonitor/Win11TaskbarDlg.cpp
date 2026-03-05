@@ -54,8 +54,8 @@ void CWin11TaskbarDlg::AdjustTaskbarWndPos(bool force_adjust)
     m_rect.right = m_rect.left + m_window_width;
     m_rect.bottom = m_rect.top + m_window_height;
 
-    // 插入模式：缩小任务列表占位，使本窗口占据任务栏实际区域；位置用任务栏客户区坐标，避免 Win11 ReBar 仅覆盖任务列表带导致错位
-    if (m_hBar != nullptr && m_hMin != nullptr && ::IsWindow(m_hBar) && ::IsWindow(m_hMin))
+    // Win11 已禁用插入模式，此处分支不再进入
+    if (false && m_hBar != nullptr && m_hMin != nullptr && ::IsWindow(m_hBar) && ::IsWindow(m_hMin))
     {
         ::GetWindowRect(m_hMin, m_rcMin);
         ::GetWindowRect(m_hBar, m_rcBar);
@@ -87,39 +87,24 @@ void CWin11TaskbarDlg::AdjustTaskbarWndPos(bool force_adjust)
         return;
     }
 
-    // 叠加模式：按通知区/开始按钮位置摆放，坐标必须为任务栏客户区（父窗口为 m_hTaskbar）
+    // 叠加模式：Win11 下固定放在通知区左侧（任务栏客户区坐标），避免遮挡应用图标
     if (force_adjust || m_rcNotify.Width() != m_last_notify_width || m_rcStart.left != m_last_start_pos)
     {
         m_last_notify_width = m_rcNotify.Width();
         m_last_start_pos = m_rcStart.left;
-        if (!theApp.m_taskbar_data.tbar_wnd_on_left || !CWindowsSettingHelper::IsTaskbarCenterAlign())
+        int notify_x_client = m_rcNotify.left - m_rcTaskbar.left;
+        if (m_rcNotify.left == 0)
         {
-            // 通知区水平位置：转为任务栏客户区坐标（MoveWindow 使用父窗口客户区）
-            int notify_x_client = m_rcNotify.left - m_rcTaskbar.left;
-            if (m_rcNotify.left == 0)
-            {
-                if (m_is_secondary_display)
-                    notify_x_client = m_rcTaskbar.Width() - DPI(88);
-                else
-                    notify_x_client = m_rcTaskbar.Width() - DPI(theApp.m_taskbar_data.taskbar_right_space_win11);
-            }
-            if (theApp.m_taskbar_data.avoid_overlap_with_widgets && CWindowsSettingHelper::IsTaskbarWidgetsBtnShown() && !CWindowsSettingHelper::IsTaskbarCenterAlign())
-                m_rect.MoveToX(notify_x_client - m_rect.Width() + 2 - DPI(theApp.m_taskbar_data.taskbar_left_space_win11));
+            if (m_is_secondary_display)
+                notify_x_client = m_rcTaskbar.Width() - DPI(88);
             else
-                m_rect.MoveToX(notify_x_client - m_rect.Width() + 2);
+                notify_x_client = m_rcTaskbar.Width() - DPI(theApp.m_taskbar_data.taskbar_right_space_win11);
         }
+        // 始终贴通知区左侧，不随“显示在左侧”设置，避免压住应用图标
+        if (theApp.m_taskbar_data.avoid_overlap_with_widgets && CWindowsSettingHelper::IsTaskbarWidgetsBtnShown() && !CWindowsSettingHelper::IsTaskbarCenterAlign())
+            m_rect.MoveToX(notify_x_client - m_rect.Width() + 2 - DPI(theApp.m_taskbar_data.taskbar_left_space_win11));
         else
-        {
-            if (theApp.m_taskbar_data.tbar_wnd_snap)
-                m_rect.MoveToX(m_rcStart.left - m_rect.Width() - 2);
-            else
-            {
-                if (CWindowsSettingHelper::IsTaskbarWidgetsBtnShown())
-                    m_rect.MoveToX(2 + DPI(theApp.m_taskbar_data.taskbar_left_space_win11));
-                else
-                    m_rect.MoveToX(2);
-            }
-        }
+            m_rect.MoveToX(notify_x_client - m_rect.Width() + 2);
         m_rect.MoveToX(m_rect.left + DPI(theApp.m_taskbar_data.window_offset_left));
         m_rect.MoveToY((m_rcStart.Height() - m_rect.Height()) / 2 + (m_rcTaskbar.Height() - m_rcStart.Height()) + DPI(theApp.m_taskbar_data.window_offset_top));
         MoveWindow(m_rect);
@@ -131,7 +116,8 @@ void CWin11TaskbarDlg::InitTaskbarWnd()
     m_hNotify = ::FindWindowEx(m_hTaskbar, 0, L"TrayNotifyWnd", NULL);
     m_hStart = ::FindWindowEx(m_hTaskbar, nullptr, L"Start", NULL);
     ::GetWindowRect(m_hNotify, m_rcNotify);
-    TryFindTaskbarBandForInsert();
+    // Win11 任务栏多 ReBar/多 band，插入模式易找到左侧 band 导致缩小错误区域、窗口跑到左侧且右侧不空出，故禁用
+    // TryFindTaskbarBandForInsert();
 }
 
 void CWin11TaskbarDlg::ResetTaskbarPos()
