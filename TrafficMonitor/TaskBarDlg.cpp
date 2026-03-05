@@ -825,14 +825,16 @@ void CTaskBarDlg::CalculateWindowSize()
             auto plugin = iter->PluginItem();
             if (plugin != nullptr && theApp.m_taskbar_data.plugin_display_item.Contains(plugin->GetItemId()))
             {
-                //标签宽度
+                // 插件项统一用 *iter 作为 key，避免与 item_order 查表时键不一致导致取到未设置 value_width 的条目
                 int& label_width{ item_widths[*iter].label_width };
-                //数值宽度
-                int& value_width{ item_widths[plugin].value_width };
+                int& value_width{ item_widths[*iter].value_width };
                 if (plugin->IsCustomDraw())
                 {
                     label_width = 0;
                     value_width = theApp.m_plugins.GetItemWidth(plugin, m_pDC);
+                    // 若插件未实现或返回 0，用示例文本宽度作为回退，避免宽度为 0 或过小
+                    if (value_width <= 0)
+                        value_width = m_pDC->GetTextExtent(plugin->GetItemValueSampleText()).cx;
                 }
                 else
                 {
