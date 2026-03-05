@@ -928,7 +928,7 @@ void CTaskBarDlg::CalculateWindowSize()
         m_window_height = TASKBAR_WND_HEIGHT / 2 * item_count;
         m_window_height += (DPI(theApp.m_taskbar_data.item_space) * item_count);   //加上每个标签间的空隙
     }
-    m_rect.right = m_rect.left + m_window_width;
+    m_rect.right = m_rect.left + 80;
     m_rect.bottom = m_rect.top + m_window_height;
 
 }
