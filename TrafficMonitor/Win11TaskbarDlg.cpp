@@ -100,11 +100,12 @@ void CWin11TaskbarDlg::AdjustTaskbarWndPos(bool force_adjust)
             else
                 notify_x_client = m_rcTaskbar.Width() - DPI(theApp.m_taskbar_data.taskbar_right_space_win11);
         }
-        // 始终贴通知区左侧，不随“显示在左侧”设置，避免压住应用图标
+        // 始终贴通知区左侧；多左移一些（与通知区留出空隙），避免贴边或遮挡
+        const int win11_right_gap = DPI(10);
         if (theApp.m_taskbar_data.avoid_overlap_with_widgets && CWindowsSettingHelper::IsTaskbarWidgetsBtnShown() && !CWindowsSettingHelper::IsTaskbarCenterAlign())
-            m_rect.MoveToX(notify_x_client - m_rect.Width() + 2 - DPI(theApp.m_taskbar_data.taskbar_left_space_win11));
+            m_rect.MoveToX(notify_x_client - m_rect.Width() - win11_right_gap - DPI(theApp.m_taskbar_data.taskbar_left_space_win11));
         else
-            m_rect.MoveToX(notify_x_client - m_rect.Width() + 2);
+            m_rect.MoveToX(notify_x_client - m_rect.Width() - win11_right_gap);
         m_rect.MoveToX(m_rect.left + DPI(theApp.m_taskbar_data.window_offset_left));
         m_rect.MoveToY((m_rcStart.Height() - m_rect.Height()) / 2 + (m_rcTaskbar.Height() - m_rcStart.Height()) + DPI(theApp.m_taskbar_data.window_offset_top));
         MoveWindow(m_rect);
