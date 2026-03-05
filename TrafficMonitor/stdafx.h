@@ -1,4 +1,4 @@
-﻿
+
 // stdafx.h : 标准系统包含文件的包含文件，
 // 或是经常使用但不常更改的
 // 特定于项目的包含文件
@@ -89,6 +89,7 @@ using std::ofstream;
 #define RESTART_TASKBAR_TIMER 1240
 #define INIT_CONNECT_TIMER 1241
 #define DPI_CHANGE_TIMER 1242
+#define WIN11_TASKBAR_DELAYED_ADJUST_TIMER 1243
 
 #define MAX_INSERT_TO_TASKBAR_CNT 200     //尝试嵌入任务栏的最大次数
 #define WARN_INSERT_TO_TASKBAR_CNT 20     //尝试嵌入任务栏的警告次数

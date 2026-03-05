@@ -1031,6 +1031,9 @@ BOOL CTaskBarDlg::OnInitDialog()
     }
 
     SetTimer(TASKBAR_TIMER, 1000, NULL);
+    // Win11 下启动后延迟再算一次位置，避免任务栏未就绪时未正确空出区域
+    if (theApp.IsWindows11Taskbar())
+        SetTimer(WIN11_TASKBAR_DELAYED_ADJUST_TIMER, 600, NULL);
 
     return TRUE;  // return TRUE unless you set the focus to a control
                   // 异常: OCX 属性页应返回 FALSE
@@ -1243,6 +1246,11 @@ void CTaskBarDlg::OnTimer(UINT_PTR nIDEvent)
             last_window_width = m_window_width;
             last_window_height = m_window_height;
         }
+    }
+    else if (nIDEvent == WIN11_TASKBAR_DELAYED_ADJUST_TIMER)
+    {
+        KillTimer(WIN11_TASKBAR_DELAYED_ADJUST_TIMER);
+        AdjustWindowPos(false);
     }
 
     CDialogEx::OnTimer(nIDEvent);
