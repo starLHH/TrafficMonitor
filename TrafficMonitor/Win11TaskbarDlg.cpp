@@ -27,6 +27,8 @@ void CWin11TaskbarDlg::TryFindTaskbarBandForInsert()
     if (m_hBar == nullptr)
         m_hBar = ::FindWindowEx(m_hTaskbar, nullptr, L"ReBarWindow32", NULL);
     if (m_hBar == nullptr)
+        m_hBar = ::FindWindowEx(m_hTaskbar, nullptr, L"WorkerW", NULL);
+    if (m_hBar == nullptr)
         return;
     m_hMin = ::FindWindowEx(m_hBar, nullptr, L"MSTaskSwWClass", NULL);
     if (m_hMin == nullptr)
@@ -79,25 +81,26 @@ void CWin11TaskbarDlg::AdjustTaskbarWndPos(bool force_adjust)
         return;
     }
 
-    // 叠加模式：按通知区/开始按钮位置摆放（可能遮挡应用按钮）
+    // 叠加模式：按通知区/开始按钮位置摆放，坐标必须为任务栏客户区（父窗口为 m_hTaskbar）
     if (force_adjust || m_rcNotify.Width() != m_last_notify_width || m_rcStart.left != m_last_start_pos)
     {
         m_last_notify_width = m_rcNotify.Width();
         m_last_start_pos = m_rcStart.left;
         if (!theApp.m_taskbar_data.tbar_wnd_on_left || !CWindowsSettingHelper::IsTaskbarCenterAlign())
         {
-            int notify_x_pos = m_rcNotify.left;
-            if (notify_x_pos == 0)
+            // 通知区水平位置：转为任务栏客户区坐标（MoveWindow 使用父窗口客户区）
+            int notify_x_client = m_rcNotify.left - m_rcTaskbar.left;
+            if (m_rcNotify.left == 0)
             {
                 if (m_is_secondary_display)
-                    notify_x_pos = m_rcTaskbar.Width() - DPI(88);
+                    notify_x_client = m_rcTaskbar.Width() - DPI(88);
                 else
-                    notify_x_pos = m_rcTaskbar.Width() - DPI(theApp.m_taskbar_data.taskbar_right_space_win11);
+                    notify_x_client = m_rcTaskbar.Width() - DPI(theApp.m_taskbar_data.taskbar_right_space_win11);
             }
             if (theApp.m_taskbar_data.avoid_overlap_with_widgets && CWindowsSettingHelper::IsTaskbarWidgetsBtnShown() && !CWindowsSettingHelper::IsTaskbarCenterAlign())
-                m_rect.MoveToX(notify_x_pos - m_rect.Width() + 2 - DPI(theApp.m_taskbar_data.taskbar_left_space_win11));
+                m_rect.MoveToX(notify_x_client - m_rect.Width() + 2 - DPI(theApp.m_taskbar_data.taskbar_left_space_win11));
             else
-                m_rect.MoveToX(notify_x_pos - m_rect.Width() + 2);
+                m_rect.MoveToX(notify_x_client - m_rect.Width() + 2);
         }
         else
         {
