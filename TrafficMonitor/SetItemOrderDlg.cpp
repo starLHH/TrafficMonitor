@@ -225,8 +225,7 @@ void CSetItemOrderDlg::OnOK()
     //    SaveItemChecked(item, is_checked);
     //}
 
-    if (m_display_item.IsEmpty() && m_plugin_item.data().empty())
-        m_display_item.Add(TDI_UP);
+
 
     CBaseDialog::OnOK();
 }
